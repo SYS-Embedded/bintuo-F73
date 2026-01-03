@@ -1,0 +1,220 @@
+
+#include "Initial.h"
+
+/**************************************************
+**************************************************/
+
+
+ /**************************************************
+*函数名称：void  Sys_Init(void) 
+*函数功能：系统初始化
+*入口参数：void
+*出口参数：void  
+**************************************************/
+void  Sys_Init(void)
+{	
+	_pac =  0b11101000;
+	_pa =   0b11101000;
+	_papu = 0b11101000;
+
+	_pbc =  0b11111111;
+	_pb =   0b11111111;
+	_pbpu = 0b11111111;
+	
+	_pc =   0b01010000;
+	_pcc =  0b01010000;
+	_pcpu = 0b00010000;
+	
+	_pd =   0b11111111;
+	_pdc =  0b11111111;
+	_pdpu = 0b11111111;
+	
+
+	_sledc0 = 0b11111111;
+	/*
+		Bit 7~6 PBPS3~PBPS2：PB7~PB4 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PB7~PB4 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+		Bit 5~4 PBPS1~PBPS0：PB3~PB0 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PB3~PB0 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+		Bit 3~2 PAPS3~PAPS2: PA7 和 PA4 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PA7 和 PA4 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+		Bit 1~0 PAPS1~PAPS0：PA3~PA0 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PA3~PA0 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+	*/	
+	_sledc1 = 0b11111111;
+	/*
+		Bit 7~6 未定义，读为“0”
+		Bit 5~4 PDPS1~PDPS0：PD3~PD0 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PD3~PD0 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。这些位仅适
+			用于 BS86C16A-3 和 BS86D20A-3 单片机。
+		Bit 3~2 PCPS3~PCPS2：PC7~PC4 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PC7~PC4 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+		Bit 1~0 PCPS1~PCPS0：PC3~PC0 引脚源电流选择位
+			00：源电流 = Level 0 ( 最小 )
+			01：源电流 = Level 1
+			10：源电流 = Level 2
+			11：源电流 = Level 3 ( 最大 )
+			PC3~PC0 引脚为 CMOS 输出时，相应源电流选择位的设置才有效。
+	*/	
+
+	_sledcom0 = 0b00000000;
+	_sledcom1 = 0b00000000;
+	_sledcom2 = 0b00000000;
+	_acerl  = 	0b00000000;
+	//_lvrc=0b00110011;//：2.55V
+	_lvrc=0b01010101;//：2.1V
+	/*
+		Bit 7~0 LVS7~LVS0： LVR 电压选择
+			01010101： 2.1V
+			00110011： 2.55V
+			10011001： 3.15V
+			10101010： 3.8V
+	*/
+	_lvdc=0b00011001;//：2.2V
+	/*
+		Bit 7~6 未定义，读为“0”
+		Bit 5 LVDO：LVD 输出标志位
+			0：未检测到低电压
+			1：检测到低电压
+		Bit 4 LVDEN：低电压检测控制位
+			0：除能
+			1：使能
+		Bit 3 VBGEN：Bandgap 电压输出控制位
+			0：除能
+			1：使能
+		注意，当 LVD 或 LVR 使能或当 VBGEN 置位时，Bandgap 会自动使能。
+			Bit 2~0 VLVD2~VLVD0：选择 LVD 电压位
+			000：2.0V
+			001：2.2V
+			010：2.4V
+			011：2.7V
+			100：3.0V
+			101：3.3V
+			110：3.6V
+			111：4.0V
+	*/
+	_wdtc=0b01010111;
+	/*
+		Bit 7~3 WE4~WE0： WDT 功能控制
+		01010 或 10101：使能
+		其它值：单片机复位
+		如果由于不利的环境因素使这些位变为其它值，单片机将复位。复位动作发生
+		在 tSRESET 延迟时间后，且 CTRL 寄存器的 WRF 位将置为“ 1”。
+		Bit 2~0 WS2~WS0： WDT 溢出周期选择位
+		000： 28/fSUB
+		001： 210/fSUB
+		010： 212/fSUB
+		011： 214/fSUB
+		100： 215/fSUB
+		101： 216/fSUB
+		110： 217/fSUB
+		111： 218/fSUB
+	*/
+	_ptm0c0 = 0b00000000;	//8M/4=2M
+	/*
+		Bit 7 PTPAU：PTM 计数器暂停控制位
+			0：运行
+			1：暂停
+		Bit 6~4 PTCK2~PTCK0：选择 PTM 计数时钟位
+			000：fSYS/4
+			001：fSYS
+			010：fH/16
+			011：fH/64
+			100：fSUB
+			101：fSUB
+			110：PTCK 上升沿
+			111：PTCK 下降沿
+		Bit 3 PTON：PTM 计数器 On/Off 控制位
+			0：Off
+			1：On
+		Bit 2~0 未定义，读为“0_ton=1;
+	*/
+	_ptm0c1 = 0b11000001;	//Timer mode, ccra clr
+	
+	_ptm0al = 250;			//250*0.5=125uS
+	_ptm0ah = 0;	
+	
+	_ptm0rpl = 0;			
+	_ptm0rph = 0;
+	
+
+	Uart0_Init();
+					//开总中断
+					
+	_ptm0af = 0;
+	_ptm0ae = 1;
+	_pt0on = 1;
+	
+	_emi = 1;	
+}
+
+
+void 	Work_AdcInit(void)
+{
+	gu8v_BatLowCnt = 0;
+	gu8v_BatNormalCnt = 0;
+	
+	gubv_BalLowStatus = 0;
+	
+	gu8v_AdSampCnt2 = 0;
+	gu8v_intAdcValue2 = 0;
+	gu8v_intAdMaxTemp2 = 0x0000;
+	gu8v_intAdMinTemp2 = 0xffff;
+	
+}
+
+
+void 	Work_StatusRegInit(void)
+{
+	gu8v_WorkMode = C_WORK_ON_MODE;
+	KeyFlag1.byte = 0x00;
+	KeyFlag2.byte = 0x00;
+	TimeFlag1.byte = 0x00;
+	WorkFlag1.byte = 0x00;
+	WorkFlag2.byte = 0x00;
+	DcfFlag1.byte = 0x00;
+	WorkModeFlag.byte = 0x00;
+	gu8v_ButtonOnTkDelay = 200;
+	gu16v_PowerOnDelay20 = C_20_M;
+	gu16v_JiaoTiTime = C_6_M;
+	gu8v_AcOffDebounce = 20;
+	gu8v_PressureMode = 0x00;
+	F_LowVoltage = 0;
+	gubv_PowerStatus = 0;
+	gubv_RfCopyMode = 0;
+	gu16v_AutoModeCycle = 0;
+}
+////===============================================================
+//// Usegu8v_Init
+////===============================================================
+void User_Init(void)
+{
+	Work_AdcInit();
+	Work_StatusRegInit();
+	gu8v_PowerOnDelay = 20;
+}
+

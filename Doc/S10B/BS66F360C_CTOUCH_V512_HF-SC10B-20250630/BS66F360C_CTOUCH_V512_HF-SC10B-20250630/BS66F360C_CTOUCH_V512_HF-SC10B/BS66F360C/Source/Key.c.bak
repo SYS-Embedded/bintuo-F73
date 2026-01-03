@@ -1,0 +1,232 @@
+
+#include	"Key.h"
+
+////===============================================================
+////void Key_Task (void)
+////===============================================================
+void Key_Task (void)
+{	
+	unsigned char keyCnt;
+	if(!P_12V_IN)
+	{
+		gu8v_12vOutDebounce = 0;
+		gu8v_12vInDebounce++;
+		if(gu8v_12vInDebounce>=100)
+		{
+			gu8v_12vInDebounce = 0;
+			if(gubv_12vOff)
+			{
+				Sys_Init();
+				Work_StatusRegInit();
+			}
+			gubv_12vOff = 0;
+			gubv_PowerButtonOff = 0;
+			gubv_ErrorLock = 0;
+			if(gu8v_BeepType==C_BP_ERROR)
+			{
+				gu8v_BeepTime = 0;
+				gubv_BeepOn = 0;
+				gu8v_BeepCnt = 0;
+				gu8v_BeepType = 0;
+			}
+		}
+	}
+	else
+	{
+		gu8v_12vInDebounce = 0;
+		gu8v_12vOutDebounce++;
+		if(gu8v_12vOutDebounce>=50)
+		{
+			gu8v_12vOutDebounce = 0;
+			if(!gubv_12vOff)
+			{
+				gubv_12vOff = 1;
+				gu8v_WorkMode = C_WORK_OFF_MODE;
+				if(gu8v_AcOffDebounce>=10)
+				{
+					gubv_PowerButtonOff = 1;
+				}
+			}
+		}
+	}
+	if(R_ButtonOnTkDelay)
+	{			
+		R_ButtonOnTkDelay--;
+		LIBRARY_RESET();   
+	}
+	else
+	{
+		gu16v_KeyBuffer = 0x0000;
+		GET_KEY_BITMAP();
+		gu16v_KeyBuffer = DATA_BUF[1];
+		gu16v_KeyBuffer <<= 8;  
+		gu16v_KeyBuffer += DATA_BUF[0];
+	
+		if(gu16v_TkData&C_KEYVALUE_PRE_ADD)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_PRE_ADD;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_PRE_DEC)		
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_PRE_DEC;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_ALERM_OFF)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_ALERM_OFF;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_STATIC)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_STATIC;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_AUTO)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_AUTO;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_QiBei)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_QiBei;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_LEFT)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_LEFT;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_RIGHT)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_RIGHT;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_TAITUI)			
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_TAITUI;
+			keyCnt ++;
+		}
+		if(gu16v_TkData&C_KEYVALUE_JIAOTI)				
+		{
+			gu16v_KeyBuffer |= C_KEYVALUE_JIAOTI;
+			keyCnt ++;
+		}
+		if(gu16v_KeyBuffer)
+		{
+			gu8v_KeyOffDebounce = 0;
+			gu8v_KeyDebounce++;
+			if(gu8v_KeyDebounce>=10)
+			{
+				gu8v_KeyDebounce = 0;
+				if(!gubv_KeyPressed)
+				{
+					gubv_KeyPressed = 1;
+					gu8v_KeyLongDelay = 30;			//100mS*30=3000mS,3S
+					gubv_KeyLongPressed=0;
+					gu16v_KeyValue = gu16v_KeyBuffer;
+					if(gu16v_KeyValue&C_KEYVALUE_PRE_ADD)
+					{
+						gubv_KeyShortPreAdd = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_PRE_DEC)
+					{
+						gubv_KeyShortPreDec = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_ALERM_OFF)
+					{
+						gubv_KeyShortAlermOff = 1;				
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_STATIC)
+					{
+						gubv_KeyShortStatic = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_AUTO)
+					{
+						gubv_KeyShortAuto = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_QiBei)
+					{
+						gubv_KeyShortQiBei = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_LEFT)
+					{
+						gubv_KeyShortLeft = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_RIGHT)
+					{
+						gubv_KeyShortRight = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_TAITUI)
+					{
+						gubv_KeyShortTaiTui = 1;
+					}
+					else if(gu16v_KeyValue&C_KEYVALUE_JIAOTI)
+					{
+						gubv_KeyShortJiaoTi = 1;
+					}
+				}
+				else
+				{
+					if((!gu8v_KeyLongDelay) && (!gubv_KeyLongPressed))
+					{
+						gu8v_KeyLongDelay = 30;			//100mS*30=3000mS,3S
+						gubv_KeyLongPressed = 1;
+						if(gu16v_KeyBuffer&C_KEYVALUE_PRE_ADD)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_PRE_DEC)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_ALERM_OFF)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_STATIC)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_AUTO)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_QiBei)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_LEFT)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_RIGHT)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_TAITUI)
+						{
+	
+						}
+						else if(gu16v_KeyBuffer&C_KEYVALUE_JIAOTI)
+						{
+	
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			gu8v_KeyDebounce = 0;
+			gu8v_KeyOffDebounce++;
+			if(gu8v_KeyOffDebounce>=5)
+			{
+				gu8v_KeyOffDebounce = 0;	
+				gubv_KeyPressed = 0;
+				gu8v_KeyDebounce = 0;
+				gubv_KeyLongPressed = 0;	
+			}
+		}
+	}
+}

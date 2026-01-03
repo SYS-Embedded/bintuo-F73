@@ -1,0 +1,83 @@
+
+#include	"MyDefine.h"
+
+volatile 		unsigned char  	gu8v_Delay1mS=0;
+volatile 		unsigned char  	gu8v_Delay5mS=0;
+volatile 		unsigned char  	gu8v_Delay10mS=0;
+volatile 		unsigned char  	gu8v_Delay100mS=0;
+volatile 		unsigned char  	gu8v_Delay50mS=0;
+volatile 		unsigned char  	gu8v_Delay500mS=0;
+volatile 		unsigned char  	gu8v_Delay1S=0;
+
+volatile		unsigned char  	gu8v_BeepStep=0;
+volatile		unsigned char  	gu8v_BeepTime=0;
+volatile		unsigned char  	gu8v_TimerMode=0;
+volatile		unsigned char  	gu8v_BeepType=0;
+volatile		unsigned char  	gu8v_BeepCnt=0;
+
+volatile		unsigned char  	gu8v_WorkMode=0;
+volatile		unsigned char  	gu8v_PwmDuty=0;
+volatile		unsigned char  	gu8v_PwmDelay=0;
+volatile		unsigned char  	gu8v_PressureMode=0;
+//volatile		unsigned char  	gu8v_PressureModeCopy=0;
+volatile		unsigned char  	gu8v_JiaoTiMode=0;
+
+volatile 		unsigned long  	exKeyValueFlag=0;
+volatile 		unsigned int 	gu16v_TkData=0;
+volatile		unsigned char 	gu8v_KeyDebounce=0;
+volatile		unsigned char 	gu8v_KeyOffDebounce=0;
+volatile		unsigned char  	gu8v_KeyLongDelay=0;
+volatile		unsigned int  	gu16v_KeyBuffer=0;
+volatile		unsigned int  	gu16v_KeyValue=0;
+volatile		unsigned int  	gu16v_JiaoTiTime=0;
+volatile		unsigned int  	gu16v_JiaoTiTimeCnt=0;
+volatile		unsigned int  	gu16v_PowerOnDelay20=0;
+volatile 		unsigned char	gu8v_DisplayBuf[4];
+volatile		unsigned char  	gu8v_IrRecData[4];
+volatile		unsigned char  	gu8v_IrDelay=0;
+volatile		unsigned char  	gu8v_IrBitCnt=0;
+volatile		unsigned char  	gu8v_IrSampling=0;
+volatile		unsigned char  	gu8v_IrSampStep=0;
+volatile		unsigned int  	gu16v_AutoModeCycle=0;
+volatile		unsigned char  	gu8v_12vInDebounce=0;
+volatile		unsigned char  	gu8v_12vOutDebounce=0;
+volatile		unsigned char  	gu8v_AcOffDebounce=0;
+
+volatile  		unsigned char 	R_AdSampCnt2=0;
+volatile  		unsigned int 	R_intAdMaxTemp2=0;
+volatile  		unsigned int 	R_intAdMinTemp2=0;
+volatile  		unsigned int 	R_intAdcValue2=0;
+volatile		unsigned char  	R_BatLowCnt=0;
+volatile		unsigned char  	R_BatNormalCnt=0;
+volatile		unsigned char	R_UartDelayClearRxIndex;
+volatile		unsigned char	R_UartRxLength;
+volatile		unsigned char	R_UartTxIndex;
+volatile		unsigned char	R_UartTxLength;
+volatile		unsigned char	R_ButtonOnTkDelay;
+volatile		unsigned char	R_PowerOnDelay;
+volatile		unsigned char	R_LvdDebounce;
+volatile		unsigned char	R_RfIdCopyTime;
+volatile		unsigned char	R_RfIdCopyKeyCnt;
+volatile		unsigned char	R_RfIdCopyLedDisStep;
+volatile		unsigned char	rf_433RecData[6];
+volatile		unsigned char	rf_433RecValue[6];
+volatile		unsigned char	rf_433CopyIdData1[4];
+volatile		unsigned char	rf_433_H_cnt;
+volatile		unsigned char 	rf_433_L_cnt;
+volatile		unsigned char 	rf_433BitCnt;
+volatile		unsigned char 	rf_433ByteCnt;
+volatile		unsigned char 	rf_IdLowByte;
+volatile		unsigned char 	rf_IdHighByte;
+volatile		unsigned char	 	R_UartTxBuf[20];
+volatile		unsigned char	 	R_UartRxBuf[20];
+
+volatile 		__flag_type			KeyFlag1;
+volatile 		__flag_type			KeyFlag2;
+volatile 		__flag_type			TimeFlag1;
+volatile 		__flag_type			WorkFlag1;
+volatile 		__flag_type			WorkFlag2;
+volatile 		__flag_type			WorkFlag3;
+volatile		__flag_type			WorkModeFlag;
+volatile 		__flag_type			DcfFlag1;
+
+

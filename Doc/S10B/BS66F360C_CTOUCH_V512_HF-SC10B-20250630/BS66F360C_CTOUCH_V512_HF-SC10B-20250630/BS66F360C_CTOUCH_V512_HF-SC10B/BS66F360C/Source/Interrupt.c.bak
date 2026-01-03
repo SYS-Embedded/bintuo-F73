@@ -1,0 +1,328 @@
+
+#include "Interrupt.h"
+
+//===============================================================
+//timer0
+//Interval 125uS
+//	
+//	
+//===============================================================
+void PTM0A_ISR(void)	
+{
+	if(gubv_BeepOn)					
+	{
+		P_BEEP = ~P_BEEP;//P_BEEP = 1;
+	}
+	else							
+	{
+		P_BEEP = 0;
+	}
+	gubv_ZeroStatus = P_ZERO;
+	if(gubv_ZeroStatus!=gubv_ZeroStatusCopy)
+	{
+		gu8v_AcOffDebounce = 20;
+		if(!gubv_ZeroStatus) 
+		{
+			if(gubv_StaticMode)
+			{
+				gu8v_PwmDelay = 40;// 5mS 
+				gu8v_PwmDuty = 5;//5*125uS=625uS				60mmHg 70KG
+			}
+			else
+			{
+				switch(gu8v_PressureMode)
+				{
+					case 0:
+						gu8v_PwmDelay = 48;// 5mS
+						gu8v_PwmDuty = 10;//5*125uS=625uS				30mmHg 30KG
+					break;
+					case 1:
+						gu8v_PwmDelay = 45;// 5mS 
+						gu8v_PwmDuty = 5;//5*125uS=625uS				45mmHg 50KG
+					break;
+					case 2:
+						gu8v_PwmDelay = 40;// 5mS 
+						gu8v_PwmDuty = 5;//5*125uS=625uS				60mmHg 70KG
+					break;
+					break;
+					case 3:
+						gu8v_PwmDelay = 36;// 4.56mS 
+						gu8v_PwmDuty = 5;//5*125uS=625uS				75mmHg 90KG
+					break;
+					break;
+					case 4:
+						gu8v_PwmDelay = 32;// 3.8mS 
+						gu8v_PwmDuty = 5;//5*125uS=625uS				90mmHg 110KG
+					break;
+					case 5:
+						gu8v_PwmDelay = 24;// 3.24mS 28
+						gu8v_PwmDuty = 5;//5*125uS=625uS				110mmHg  130KG
+					break;
+				}
+			}
+		}
+	}
+	gubv_ZeroStatusCopy = gubv_ZeroStatus;
+	if((!gubv_12vOff)&&(!gubv_BalLowStatus)&&(!gubv_PowerStatus))
+	{
+		if(gu8v_PwmDelay)
+		{
+			gu8v_PwmDelay--;
+		}
+		else
+		{
+			if(gu8v_PwmDuty)	gu8v_PwmDuty--;
+			if(gu8v_PwmDuty)	P_MOTO = C_MOTO_ON;
+			else							P_MOTO = C_MOTO_OFF;
+		}
+	}
+	else
+	{
+		P_MOTO = C_MOTO_OFF;
+	}
+	gubv_Pin433Read = P_IR;
+	if(rf_433_p_copy != gubv_Pin433Read)
+	{
+		if(gubv_Pin433Read)
+		{
+			switch(gu8v_IrSampStep)
+			{
+				case 0:
+					//if((gu8v_433_H_cnt>=C_RF433_BIT_TIME1_MIN && gu8v_433_H_cnt<=C_RF433_BIT_TIME1_MAX)
+					//   &&(gu8v_433_L_Cnt>=C_RF433_BIT_TIME3_MIN && gu8v_433_L_Cnt<=C_RF433_BIT_TIME3_MAX))
+					if(gu8v_433_L_Cnt>=C_RF433_BIT_TIME3_MIN && gu8v_433_L_Cnt<=C_RF433_BIT_TIME3_MAX)  
+					{
+						gu8v_433BitCnt = 0;
+						gu8v_433ByteCnt = 0;
+						gu8v_IrSampStep = 1;
+					}
+				break;
+				case 1:
+					if(((gu8v_433_H_cnt>=C_RF433_BIT_TIME2_MIN)&&(gu8v_433_H_cnt<=C_RF433_BIT_TIME2_MAX))&&((gu8v_433_L_Cnt>=C_RF433_BIT_TIME1_MIN)&&(gu8v_433_L_Cnt<=C_RF433_BIT_TIME1_MAX))) 
+					{
+						gu8v_433RecData[gu8v_433ByteCnt] |=(0x80>>gu8v_433BitCnt);
+						gu8v_433BitCnt++;
+					}
+					else if(((gu8v_433_H_cnt>=C_RF433_BIT_TIME1_MIN)&&(gu8v_433_H_cnt<=C_RF433_BIT_TIME1_MAX))&&((gu8v_433_L_Cnt>=C_RF433_BIT_TIME2_MIN)&&(gu8v_433_L_Cnt<=C_RF433_BIT_TIME2_MAX)))
+					{
+						gu8v_433RecData[gu8v_433ByteCnt] &=~(0x80>>gu8v_433BitCnt);
+						gu8v_433BitCnt++;
+					}
+					else
+					{
+						gu8v_433BitCnt = 0;
+						gu8v_433ByteCnt = 0;
+						gu8v_IrSampStep = 0;
+					}
+					if(gu8v_433BitCnt>=8)
+					{
+						gu8v_433BitCnt = 0;
+						gu8v_433ByteCnt++;
+						if(gu8v_433ByteCnt>=3)
+						{
+							gu8v_433ByteCnt = 0;
+							gu8v_433RecValue[0] = gu8v_433RecData[0];
+							gu8v_433RecValue[1] = gu8v_433RecData[1];
+							gu8v_433RecValue[2] = gu8v_433RecData[2];
+							gu8v_433RecData[0] = 0;
+							gu8v_433RecData[1] = 0;
+							gu8v_433RecData[2] = 0;
+							gubv_IrRecUpdata = 1;
+							gu8v_433BitCnt = 0;
+							gu8v_433ByteCnt = 0;
+							gu8v_IrSampStep = 0;
+						}
+					}
+				break;
+			}
+			gu8v_433_H_cnt = 0;
+			gu8v_433_L_Cnt = 0;
+		}
+	}
+	else
+	{
+		if(gubv_Pin433Read)
+		{
+			if(gu8v_433_H_cnt<250)gu8v_433_H_cnt++;
+		}
+		else
+		{
+			if(gu8v_433_L_Cnt<250)gu8v_433_L_Cnt++;
+		}
+	}
+	rf_433_p_copy = gubv_Pin433Read;
+	/*switch(gu8v_IrSampStep)	
+	{
+		case 0: 
+			if(P_IR)       												//
+			{
+				if(gu8v_IrSampling>=C_IR_HEAD_8MS)  		//
+				{
+					gu8v_IrSampStep   = 1;
+				}
+				gu8v_IrSampling = 0;		
+			}
+			else 	
+			{
+				gu8v_IrSampling++;	
+			}   	
+		break ;
+		case 1:
+			if(!P_IR)       						//
+			{
+				if(gu8v_IrSampling>=C_IR_ILLEGAL_6MS)  	//
+				{
+					gu8v_IrSampStep = 0;
+				}
+				else    if(gu8v_IrSampling>C_IR_HEAD_4MS) //   
+				{
+					gu8v_IrSampStep = 2;   	
+				}
+				else    if(gu8v_IrSampling>C_IR_HEAD_2MS) //
+				{
+					//F_IrLongPressed = 1;	
+				}
+				gu8v_IrSampling = 0;	
+			}
+			else 	gu8v_IrSampling++;				
+		break;
+	    case 2:
+			if(!P_IR)          
+			{
+				if(gu8v_IrSampling>=C_IR_LOW_BIT)
+				{
+					gu8v_IrRecData[gu8v_IrBitCnt>>3] >>=1;
+					if(gu8v_IrSampling>C_IR_HIGHT_BIT) 
+					{
+						gu8v_IrRecData[gu8v_IrBitCnt>>3] |=0x80; 		
+					}
+					gu8v_IrBitCnt++; 	
+					if(gu8v_IrBitCnt>=24)
+					{
+						gu8v_IrBitCnt   = 0;
+						gubv_IrRecUpdata = 1;
+						gu8v_IrSampStep = 0;
+					}	           				
+				}
+				gu8v_IrSampling = 0;				
+			}
+			else 	gu8v_IrSampling++;	
+	    break;	         
+	}*/
+	gu8v_Delay1mS++;
+	if(gu8v_Delay1mS>=8)
+	{
+		gu8v_Delay1mS = 0;
+		gu8v_Delay5mS++;
+		if(gu8v_Delay5mS>=5)
+		{
+			gu8v_Delay5mS = 0;
+			gubv_5mS = 1;
+			gu8v_Delay10mS++;
+			if(gu8v_Delay10mS>=2)
+			{
+				gu8v_Delay10mS = 0;
+				gubv_10mS = 1;
+				
+				if(gu8v_BeepTime)	gu8v_BeepTime--;
+				gu8v_Delay50mS++;
+				if(gu8v_Delay50mS>=5)
+				{
+					gu8v_Delay50mS = 0;
+					gubv_50mS	= 1;
+					gu8v_Delay100mS++;
+					if(gu8v_Delay100mS>=2)
+					{
+						gu8v_Delay100mS = 0;
+						gubv_100mS	= 1;
+					}	
+				}	
+			}
+		}
+	}
+}
+
+void UART0_ISR (void)
+{
+	if(_perr0 || _nf0 || _ferr0 || _oerr0)		//error found?
+   	{
+   	   _acc = _u0sr;						//read USR to clear error flag 
+   	   _acc = _txr_rxr0;  					//read _txr_rxr0 to clear error flag   
+   	}
+   	else									//no error found
+   	{
+   	   if(_rxif0)							//RXR	data register has available	data
+   	   {
+   	   		if(gu8v_UartRxLength<31)
+			{
+				gu8v_UartRxBuf[gu8v_UartRxLength] = _txr_rxr0;    			//receive data from PC
+				gu8v_UartDelayClearRxIndex = 5;	//5*100mS
+				gu8v_UartRxLength ++ ;	
+				if(gu8v_UartRxLength>=17)		//4£ºstart(1BYTES) + data(3BYTES)+checkSum
+				{
+					gu8v_UartRxLength = 0;								//receive data index idnf
+					F_UartRecOnePacket = 1;
+				}
+			}
+			else
+			{
+				gu8v_UartRxLength = 0;
+				gu8v_UartRxBuf[gu8v_UartRxLength] = _txr_rxr0;  
+			}
+	   }
+	   else
+   	   {
+   	   		if(_tidle0)
+   	   		{
+   	   			gu8v_UartTxIndex++;
+   	   			if(gu8v_UartTxIndex<gu8v_UartTxLength)
+   	   			{
+   	   				_txr_rxr0=gu8v_UartTxBuf[gu8v_UartTxIndex];
+   	   			}
+   	   		}
+   	   }
+	}
+}
+
+void	Time_Base(void)
+{
+	if(gu8v_PowerOnDelay)	
+	{
+		gu8v_PowerOnDelay--;
+		if(!gu8v_PowerOnDelay)
+		{
+			gu8v_IdLowByte = read_eeprom(0x10);
+			gu8v_IdHighByte = read_eeprom(0x11);
+		}
+	}
+	if(gu8v_RfIdCopyTime)		
+	{
+		gu8v_RfIdCopyTime--;
+		if(!gu8v_RfIdCopyKeyCnt)	gu8v_RfIdCopyKeyCnt = 0;
+	}
+	if(gu8v_KeyLongDelay)				gu8v_KeyLongDelay--;
+	if(gu8v_IrDelay)											gu8v_IrDelay--;
+	if(gu8v_UartDelayClearRxIndex)
+	{
+		gu8v_UartDelayClearRxIndex--;
+		if(!gu8v_UartDelayClearRxIndex)
+		{
+			gu8v_UartRxLength = 0;
+		}
+	}
+	gu8v_Delay500mS++;
+	if(gu8v_Delay500mS>=5)
+	{
+		gu8v_Delay500mS = 0;
+		gubv_500mS = 1;
+		gubv_500mS_Flash = ~gubv_500mS_Flash;
+		gu8v_Delay1S++;
+		if(gu8v_Delay1S>=2)
+		{
+			gu8v_Delay1S	= 0;
+			gubv_1S = 1;
+		}
+	}				
+}
+
+
