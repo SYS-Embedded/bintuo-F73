@@ -46,6 +46,25 @@ void Dis_SetDisBufferAll(unsigned char gubv_setData)
 	}
 }
 
+
+void Display_Refresh_To_TM1652(void)
+{
+    // 1. 数码管部分 (假设前3个Byte是数码管)
+    // 原逻辑：gu8v_DisplayBuf[0] -> 第一位数码管
+    Drv_TM1652_SetDigit(0, gu8v_DisplayBuf[0]); // Grid 1
+    Drv_TM1652_SetDigit(1, gu8v_DisplayBuf[1]); // Grid 2
+    Drv_TM1652_SetDigit(2, gu8v_DisplayBuf[2]); // Grid 3
+
+    // 2. LED 灯组部分
+    // 原逻辑中，LED 状态分散在 gu8v_DisplayBuf 的某些 Bit 中
+    // 你需要根据新电路图的 Grid4/5/6 连接的 LED 来赋值
+    // 假设：gu8v_DisplayBuf[3] 对应 Grid 4
+    Drv_TM1652_SetDigit(3, gu8v_DisplayBuf[3]); 
+    Drv_TM1652_SetDigit(4, gu8v_DisplayBuf[4]); 
+    Drv_TM1652_SetDigit(5, gu8v_DisplayBuf[5]); 
+}
+
+
 void Display_Task (void)
 {	
 	//unsigned char u8_DisTemp,u8_DisTemp1,u8_DisTemp2;
@@ -183,6 +202,10 @@ void Display_Task (void)
 	//Dis_SetledDriver(gu8v_DisplayBuf,7);
 	length = 7;
 	pBuffer = gu8v_DisplayBuf;
+
+
+    Drv_TM1652_Task();
+    Display_Refresh_To_TM1652();
 	InitIoPort();
 	SendCommand(C_ComDisMod7Mul10);    
 	SendCommand(C_ComWRInc);    	

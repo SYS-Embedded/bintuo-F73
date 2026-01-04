@@ -395,5 +395,7 @@ void User_Init(void)
 	gu8v_CalModeIndex = 0;
 	gu8v_RfIdCopyTime = 100;
 	DcfFlag1.byte = 0x03;//AB DCF ON
+	
+	Drv_TM1652_Init();
 }
 
