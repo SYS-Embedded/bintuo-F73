@@ -50,6 +50,7 @@ void USER_PROGRAM()
 		Key_Task();
 		//Beep_Task();
 		ADC_Task();
+        drv_tm1652_task();
 	}
 	if(gubv_10mS)
 	{

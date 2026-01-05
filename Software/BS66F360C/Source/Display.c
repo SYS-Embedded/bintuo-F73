@@ -49,19 +49,14 @@ void Dis_SetDisBufferAll(unsigned char gubv_setData)
 
 void Display_Refresh_To_TM1652(void)
 {
-    // 1. 数码管部分 (假设前3个Byte是数码管)
-    // 原逻辑：gu8v_DisplayBuf[0] -> 第一位数码管
-    Drv_TM1652_SetDigit(0, gu8v_DisplayBuf[0]); // Grid 1
-    Drv_TM1652_SetDigit(1, gu8v_DisplayBuf[1]); // Grid 2
-    Drv_TM1652_SetDigit(2, gu8v_DisplayBuf[2]); // Grid 3
+    //number
+    drv_tm1652_setdigit(0, gu8v_DisplayBuf[C_LED_NUM2_ADD]); // Grid 1
+    drv_tm1652_setdigit(1, gu8v_DisplayBuf[C_LED_NUM2_ADD]); // Grid 2
 
-    // 2. LED 灯组部分
-    // 原逻辑中，LED 状态分散在 gu8v_DisplayBuf 的某些 Bit 中
-    // 你需要根据新电路图的 Grid4/5/6 连接的 LED 来赋值
-    // 假设：gu8v_DisplayBuf[3] 对应 Grid 4
-    Drv_TM1652_SetDigit(3, gu8v_DisplayBuf[3]); 
-    Drv_TM1652_SetDigit(4, gu8v_DisplayBuf[4]); 
-    Drv_TM1652_SetDigit(5, gu8v_DisplayBuf[5]); 
+    //led 
+    drv_tm1652_setdigit(2, gu8v_DisplayBuf[2]); // Grid 3
+    drv_tm1652_setdigit(3, gu8v_DisplayBuf[3]); // Grid 4
+    drv_tm1652_setdigit(4, gu8v_DisplayBuf[4]); // Grid 5
 }
 
 
@@ -85,7 +80,7 @@ void Display_Task (void)
 				{
 					if(gubv_CalMode)
 					{
-						gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_B;//交替按键
+						gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_B;//锟斤拷锟芥按锟斤拷
 						switch(gu8v_CalModeIndex)
 						{
 							case 0:
@@ -135,12 +130,8 @@ void Display_Task (void)
 					{
 						if(!gubv_500mS_Flash)
 						{
-							disNum = gu8v_PressureMode+4;
-							r_Num2 =  disNum/10;
-							r_Num1 =  disNum%10;
-							if(r_Num2)	gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[r_Num2];
-							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[r_Num1]|C_SEG_DP;
-							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[0];
+							disNum = gu8v_PressureMode-3;
+							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[disNum];
 						}
 					}
 					else
@@ -203,9 +194,10 @@ void Display_Task (void)
 	length = 7;
 	pBuffer = gu8v_DisplayBuf;
 
-
-    Drv_TM1652_Task();
+    
     Display_Refresh_To_TM1652();
+    
+    #ifdef DEV_S10B
 	InitIoPort();
 	SendCommand(C_ComDisMod7Mul10);    
 	SendCommand(C_ComWRInc);    	
@@ -217,5 +209,9 @@ void Display_Task (void)
 		pBuffer++;
 		length--;
 	}
-	SendCommand(C_ComDisplayOn);   
+	SendCommand(C_ComDisplayOn);
+    #else
+    Display_Refresh_To_TM1652();
+    #endif
+    
 }

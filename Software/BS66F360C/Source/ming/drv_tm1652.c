@@ -2,11 +2,12 @@
  * @file    drv_tm1652.c
  * @brief   Implementation of TM1652 Driver
  */
-
+#include "hal_uart.h"
 #include "drv_tm1652.h"
 
 // ================= Hardware Abstraction =================
 
+#if 0
 // Adjust these macros based on your schematic
 // Example: SDA is connected to Port A, Pin 3
 #define TM1652_SDA_PIN      _pa3
@@ -16,6 +17,7 @@
 #define PIN_SDA_HIGH()      { TM1652_SDA_DIR = 0; TM1652_SDA_PIN = 1; }
 // Set SDA Line Low
 #define PIN_SDA_LOW()       { TM1652_SDA_DIR = 0; TM1652_SDA_PIN = 0; }
+
 
 // ================= Timing Calibration =================
 
@@ -30,6 +32,7 @@ static void DelayBit_52us(void)
     volatile unsigned char t = 30; 
     while(t--) { _nop(); }
 }
+#endif
 
 // ================= Private Definitions =================
 
@@ -65,10 +68,13 @@ static unsigned char s_WaitTimer; // Timer for non-blocking delay
  *         Format: Start(0) + 8 Data + Parity(Odd) + Stop(1)
  * @param  dat: Byte to send
  */
+
 static void TM1652_SendByte(unsigned char dat)
 {
+#if 0
     unsigned char i;
     unsigned char ones_count = 0;
+
 
     // 1. Start Bit (Low)
     PIN_SDA_LOW();
@@ -106,16 +112,18 @@ static void TM1652_SendByte(unsigned char dat)
     // 4. Stop Bit (High)
     PIN_SDA_HIGH();
     DelayBit_52us();
+#endif
 }
 
 // ================= Public API Implementation =================
 
-void Drv_TM1652_Init(void)
+void drv_tm1652_init(void)
 {
     unsigned char i;
     
     // 1. Init Hardware
-    PIN_SDA_HIGH(); 
+    //PIN_SDA_HIGH(); 
+    uart_init();
     
     // 2. Clear Buffer
     for(i = 0; i < TM1652_MAX_DIGITS; i++)
@@ -131,7 +139,7 @@ void Drv_TM1652_Init(void)
     s_UpdateFlags = FLAG_UPDATE_DATA | FLAG_UPDATE_CTRL;
 }
 
-void Drv_TM1652_SetDigit(unsigned char grid_idx, unsigned char seg_data)
+void drv_tm1652_setdigit(unsigned char grid_idx, unsigned char seg_data)
 {
     if(grid_idx >= TM1652_MAX_DIGITS) return;
 
@@ -143,7 +151,7 @@ void Drv_TM1652_SetDigit(unsigned char grid_idx, unsigned char seg_data)
     }
 }
 
-void Drv_TM1652_SetBrightness(unsigned char level)
+void drv_tm1652_setbrightness(unsigned char level)
 {
     if(level > 7) level = 7;
     
@@ -154,7 +162,35 @@ void Drv_TM1652_SetBrightness(unsigned char level)
     }
 }
 
-void Drv_TM1652_Task(void)
+#if 1
+void drv_tm1652_task(void)
+{
+    unsigned char param = 0x10;
+    
+    if(s_UpdateFlags & FLAG_UPDATE_DATA)
+    {
+        // Start sending display data
+        hal_uart_sendisr(0x08);
+        hal_uart_sendisr(s_DispBuf[0]);
+        hal_uart_sendisr(s_DispBuf[1]);
+        hal_uart_sendisr(s_DispBuf[2]);
+        hal_uart_sendisr(s_DispBuf[3]);
+        hal_uart_sendisr(s_DispBuf[4]);
+        hal_uart_sendisr(s_DispBuf[5]);
+        s_UpdateFlags &= ~FLAG_UPDATE_DATA;
+    }
+    else if(s_UpdateFlags & FLAG_UPDATE_CTRL)
+    {
+        // Start sending control command
+        hal_uart_sendisr(0x18);
+        param |= (s_BrightnessLevel << 4); 
+        hal_uart_sendisr(param);
+        s_UpdateFlags &= ~FLAG_UPDATE_CTRL;
+    }
+
+}
+#else
+void drv_tm1652_task(void)
 {
     // Simple FSM to handle protocol without blocking main loop
     switch(s_CurrentState)
@@ -174,14 +210,14 @@ void Drv_TM1652_Task(void)
 
         case STATE_SEND_ADDR:
             // Command: Set Address (0x08)
-            TM1652_SendByte(0x08); 
+            hal_uart_sendisr(0x08); 
             s_SendIndex = 0;
             s_CurrentState = STATE_SEND_DATA;
             break;
 
         case STATE_SEND_DATA:
             // Send current digit data
-            TM1652_SendByte(s_DispBuf[s_SendIndex]);
+            hal_uart_sendisr(s_DispBuf[s_SendIndex]);
             s_SendIndex++;
             
             // Check if all digits sent
@@ -210,7 +246,7 @@ void Drv_TM1652_Task(void)
 
         case STATE_SEND_CTRL:
             // 1. Header: Display Control (0x18)
-            TM1652_SendByte(0x18);
+            hal_uart_sendisr(0x18);
             
             // 2. Parameter: Brightness + Current + On/Off
             // Constructing the byte based on Table 5 (Page 6)
@@ -223,7 +259,7 @@ void Drv_TM1652_Task(void)
                 // Adjust this byte according to your schematic (7-seg or 8-seg mode)
                 unsigned char param = 0x10; 
                 param |= (s_BrightnessLevel << 4); 
-                TM1652_SendByte(param);
+                hal_uart_sendisr(param);
             }
             
             s_UpdateFlags &= ~FLAG_UPDATE_CTRL;
@@ -243,3 +279,4 @@ void Drv_TM1652_Task(void)
             break;
     }
 }
+#endif

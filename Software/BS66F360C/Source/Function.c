@@ -131,7 +131,7 @@ void	FunPressure_Task(void)
 					{
 						gu16v_AbSensroCmp = (4+gu8v_PressureMode);
 					}*/
-					gu16v_AbSensroCmp = (4+gu8v_PressureMode);
+					gu16v_AbSensroCmp = (gu8v_PressureMode);
 					gu16v_AbSensroCmp = gu16v_AbSensroCmp*10;
 					
 					if(gu16v_ABAdcSensor>(gu16v_AbAdcZeroData+(gu16v_Ab7P5mmHgData*3)))
@@ -323,8 +323,8 @@ void	FunPressure_Task(void)
 					gu16v_FunSensroCmp = gu16v_FunAdcZeroData;
 					if(gubv_FunPressureFirstFull)
 					{
-						if(gu8v_PressureMode<=3)	gu16v_FunSensroCmp += gu16v_Fun7P5mmHgData*7;
-						else						gu16v_FunSensroCmp += gu16v_Fun7P5mmHgData*(4+gu8v_PressureMode);
+						if(gu8v_PressureMode<=7)	gu16v_FunSensroCmp += gu16v_Fun7P5mmHgData*7;
+						else						gu16v_FunSensroCmp += gu16v_Fun7P5mmHgData*(gu8v_PressureMode);
 					}
 					else
 					{
@@ -608,7 +608,7 @@ void Fun_KeyPressedProcess(void)
 	if(gubv_KeyShortPreAdd)
 	{
 		Beep(C_BP_NORMAL);
-		if(gu8v_PressureMode<9)	
+		if(gu8v_PressureMode<8)	
 		{
 			gu8v_PressureMode++;
 		}
@@ -619,7 +619,7 @@ void Fun_KeyPressedProcess(void)
 	if(gubv_KeyShortPreDec)
 	{
 		Beep(C_BP_NORMAL);
-		if(gu8v_PressureMode)	
+		if(gu8v_PressureMode>4)	
 		{
 			gu8v_PressureMode--;
 		}

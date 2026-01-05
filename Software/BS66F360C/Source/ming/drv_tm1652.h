@@ -31,7 +31,7 @@
  * @brief  Initialize the TM1652 driver and GPIOs.
  *         Should be called once during system boot.
  */
-void Drv_TM1652_Init(void);
+void drv_tm1652_init(void);
 
 /**
  * @brief  Update the display buffer for a specific grid.
@@ -39,20 +39,20 @@ void Drv_TM1652_Init(void);
  * @param  grid_idx: Index of the digit (0 ~ TM1652_MAX_DIGITS-1)
  * @param  seg_data: 7-segment data (Common Cathode)
  */
-void Drv_TM1652_SetDigit(unsigned char grid_idx, unsigned char seg_data);
+void drv_tm1652_setdigit(unsigned char grid_idx, unsigned char seg_data);
 
 /**
  * @brief  Set the display brightness.
  *         This function is Non-blocking.
  * @param  level: Brightness constant (TM1652_BRIGHT_x_16)
  */
-void Drv_TM1652_SetBrightness(unsigned char level);
+void drv_tm1652_setbrightness(unsigned char level);
 
 /**
  * @brief  Main driver task. Implements the protocol state machine.
  *         MUST be called cyclically in the main loop (e.g., every 1ms).
  *         DO NOT call this inside an ISR.
  */
-void Drv_TM1652_Task(void);
+void drv_tm1652_task(void);
 
 #endif // _DRV_TM1652_H_
