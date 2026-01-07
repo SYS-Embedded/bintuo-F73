@@ -1,0 +1,151 @@
+
+#ifndef __VARIANTS_H__
+#define __VARIANTS_H__
+
+
+#include	"MyDefine.h"
+
+extern	 	volatile		unsigned char  	gu8v_Delay1mS;
+extern	 	volatile		unsigned char  	gu8v_Delay5mS;
+extern	 	volatile		unsigned char  	gu8v_Delay10mS;
+extern	 	volatile 		unsigned char  	gu8v_Delay50mS;
+extern	 	volatile		unsigned char  	gu8v_Delay100mS;
+extern	 	volatile		unsigned char  	gu8v_Delay500mS;
+extern	 	volatile		unsigned char  	gu8v_Delay1S;
+
+extern 	  	volatile		unsigned char  	gu8v_BeepStep;
+extern 	    volatile		unsigned char  	gu8v_BeepTime;
+extern 	  	volatile		unsigned char  	gu8v_TimerMode;
+extern 	    volatile		unsigned char  	gu8v_BeepType;
+extern 	  	volatile		unsigned char  	gu8v_BeepCnt;
+
+extern 	   	volatile		unsigned char  	gu8v_WorkMode;
+extern 	   	volatile		unsigned char  	gu8v_PwmDuty;
+extern 	  	volatile		unsigned char  	gu8v_PwmDelay;
+extern 	   	volatile		unsigned char  	gu8v_PressureMode;
+//extern 	   volatile			unsigned char  	gu8v_PressureModeCopy;
+extern 	  	volatile		unsigned char  	gu8v_JiaoTiMode;
+extern	   	volatile		unsigned long  	exKeyValueFlag;
+extern	  	volatile	 	unsigned int 	gu16v_TkData;
+extern	   	volatile		unsigned char	gu8v_DisplayBuf[4];
+
+extern	 	volatile		unsigned char 	gu8v_KeyDebounce;
+extern	 	volatile		unsigned char 	gu8v_KeyOffDebounce;
+extern	 	volatile		unsigned char  	gu8v_KeyLongDelay;
+extern	 	volatile		unsigned int  	gu16v_KeyBuffer;
+extern	 	volatile		unsigned int  	gu16v_KeyValue;
+extern	 	volatile		unsigned int  	gu16v_JiaoTiTime;
+extern	 	volatile		unsigned int  	gu16v_JiaoTiTimeCnt;
+extern	 	volatile		unsigned int  	gu16v_PowerOnDelay20;
+extern	 	volatile		unsigned char  	gu8v_12vInDebounce;
+extern	 	volatile		unsigned char  	gu8v_12vOutDebounce;
+extern	 	volatile		unsigned char  	gu8v_AcOffDebounce;
+
+extern	 	volatile		unsigned char  	gu8v_IrRecData[4];
+extern	 	volatile		unsigned char  	gu8v_IrDelay;
+extern	 	volatile		unsigned char  	gu8v_IrBitCnt;
+extern	 	volatile		unsigned char  	gu8v_IrSampling;
+extern	 	volatile		unsigned char  	gu8v_IrSampStep;
+
+extern	 	volatile		unsigned int  	gu16v_AutoModeCycle;
+extern	 	volatile  		unsigned char 	gu8v_AdSampCnt2;
+extern	 	volatile  		unsigned int 	gu8v_intAdMaxTemp2;
+extern	 	volatile  		unsigned int 	gu8v_intAdMinTemp2;
+extern	 	volatile  		unsigned int 	gu8v_intAdcValue2;
+extern	 	volatile		unsigned char  	gu8v_BatLowCnt;
+extern	 	volatile		unsigned char  	gu8v_BatNormalCnt;
+extern	 	volatile		unsigned char	gu8v_UartDelayClearRxIndex;
+extern	 	volatile		unsigned char	gu8v_UartRxLength;
+extern	 	volatile		unsigned char	gu8v_UartTxIndex;
+extern	 	volatile		unsigned char	gu8v_UartTxLength;
+extern	 	volatile		unsigned char	gu8v_UartTxBuf[20];
+extern	 	volatile		unsigned char	gu8v_UartRxBuf[20];
+extern	 	volatile		unsigned char	gu8v_ButtonOnTkDelay;
+extern	 	volatile		unsigned char	gu8v_LvdDebounce;
+extern	 	volatile		unsigned char	gu8v_PowerOnDelay;
+extern	 	volatile		unsigned char	gu8v_RfIdCopyTime;
+extern	 	volatile		unsigned char	gu8v_RfIdCopyKeyCnt;
+extern	 	volatile		unsigned char	gu8v_RfIdCopyLedDisStep;
+extern	 	volatile		unsigned char	gu8v_433RecData[6];
+extern	 	volatile		unsigned char	gu8v_433RecValue[6];
+extern	 	volatile		unsigned char	gu8v_433CopyIdData1[4];
+extern	 	volatile		unsigned char	gu8v_433_H_cnt;
+extern	 	volatile		unsigned char 	gu8v_433_L_Cnt;
+extern	 	volatile		unsigned char 	gu8v_433BitCnt;
+extern	 	volatile		unsigned char 	gu8v_433ByteCnt;
+extern	 	volatile		unsigned char 	gu8v_IdLowByte;
+extern	 	volatile		unsigned char 	gu8v_IdHighByte;
+
+extern	 	volatile 		__flag_type			KeyFlag1;
+#define			gubv_KeyShortPreAdd				KeyFlag1.bits.b0
+#define			gubv_KeyShortPreDec				KeyFlag1.bits.b1
+#define			gubv_KeyShortAlermOff			KeyFlag1.bits.b2
+#define			gubv_KeyShortStatic				KeyFlag1.bits.b3
+#define			gubv_KeyShortAuto				KeyFlag1.bits.b4
+#define			gubv_KeyShortQiBei				KeyFlag1.bits.b5
+#define			gubv_KeyShortLeft				KeyFlag1.bits.b6
+#define			gubv_KeyShortRight				KeyFlag1.bits.b7
+extern	 	volatile 		__flag_type			KeyFlag2;
+#define			gubv_KeyShortTaiTui				KeyFlag2.bits.b0
+#define			gubv_KeyShortJiaoTi				KeyFlag2.bits.b1
+#define			gubv_KeyShortPower				KeyFlag2.bits.b2
+#define			gubv_IrKeyShortAlermOff			KeyFlag2.bits.b3
+
+
+extern    volatile		__flag_type						TimeFlag1;
+#define			gubv_10mS								TimeFlag1.bits.b0
+#define			gubv_5mS								TimeFlag1.bits.b1
+#define			gubv_50mS								TimeFlag1.bits.b2
+#define			gubv_100mS								TimeFlag1.bits.b3
+#define			gubv_500mS								TimeFlag1.bits.b4
+#define			gubv_1S									TimeFlag1.bits.b5
+#define			gubv_500mS_Flash						TimeFlag1.bits.b6
+
+extern    volatile		__flag_type						WorkFlag1;
+#define			gubv_BeepOn								WorkFlag1.bits.b0
+#define			gubv_ZeroStatus							WorkFlag1.bits.b1
+#define			gubv_ZeroStatusCopy						WorkFlag1.bits.b2
+#define			gubv_KeyPressed							WorkFlag1.bits.b4
+#define			gubv_KeyLongPressed						WorkFlag1.bits.b5
+#define			gubv_AcVoltageOFF						WorkFlag1.bits.b6
+#define			gubv_Dc12vOFF							WorkFlag1.bits.b7
+
+extern    volatile		__flag_type						WorkFlag2;
+#define			gubv_JiaoTiA							WorkFlag2.bits.b0
+#define			gubv_IrRecUpdata						WorkFlag2.bits.b1
+#define			gubv_AutoLeftFanShenMode				WorkFlag2.bits.b2
+#define			gubv_AutoRightFanShenMode				WorkFlag2.bits.b3
+#define			gubv_12vOff								WorkFlag2.bits.b4
+#define			gubv_PowerButtonOff						WorkFlag2.bits.b5
+#define			gubv_Error								WorkFlag2.bits.b6
+#define			gubv_ErrorLock							WorkFlag2.bits.b7
+
+extern    volatile		__flag_type						WorkFlag3;
+#define			gubv_BalLowStatus						WorkFlag3.bits.b0
+#define			F_UartRecOnePacket						WorkFlag3.bits.b1
+#define			F_LowVoltage							WorkFlag3.bits.b2
+#define			rf_433_rec_ok_flag						WorkFlag3.bits.b3
+#define			rf_433_p_copy							WorkFlag3.bits.b4
+#define			gubv_PowerStatus						WorkFlag3.bits.b5
+#define			gubv_RfCopyMode							WorkFlag3.bits.b6
+#define			gubv_Pin433Read							WorkFlag3.bits.b7
+
+extern    volatile		__flag_type						WorkModeFlag;
+#define			gubv_AlermMode							WorkModeFlag.bits.b0
+#define			gubv_StaticMode							WorkModeFlag.bits.b1
+#define			gubv_AutoMode							WorkModeFlag.bits.b2
+#define			gubv_QiBeiMode							WorkModeFlag.bits.b3
+#define			gubv_DcfLeftFanShenMode					WorkModeFlag.bits.b4
+#define			gubv_DcfRightFanShenMode				WorkModeFlag.bits.b5
+#define			gubv_TaituiMode							WorkModeFlag.bits.b6
+
+
+extern    volatile		__flag_type						DcfFlag1;
+#define			gubv_DcfA								DcfFlag1.bits.b0
+#define			gubv_DcfB								DcfFlag1.bits.b1
+#define			gubv_DcfQiBei							DcfFlag1.bits.b2
+#define			gubv_DcfRightFanShen					DcfFlag1.bits.b3
+#define			gubv_DcfLeftFanShen						DcfFlag1.bits.b4
+#define			gubv_DcfTaiTui							DcfFlag1.bits.b5
+
+#endif 

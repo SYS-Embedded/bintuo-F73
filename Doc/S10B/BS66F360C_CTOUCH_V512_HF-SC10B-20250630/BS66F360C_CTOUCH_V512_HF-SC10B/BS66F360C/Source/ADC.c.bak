@@ -1,0 +1,62 @@
+
+#include "ADC.h"
+
+unsigned int Read_AdcValue(void)
+{
+	unsigned int u16v_readData;
+	return u16v_readData;
+}
+
+//void	Delay_XuS(unsigned char  r_Delay)
+//{
+//	while(r_Delay)
+//	{
+//		r_Delay--;
+//	}
+//}
+////===============================================================
+////void GetBattery_Level (void)
+////===============================================================
+void ADC_Task (void)
+{
+	unsigned int 	r_intTemp;
+	
+		r_intTemp = Read_AdcValue();
+		//ADCCON  &= 0x7F;	//adc off,1/4 vdd ad channel voltage
+		if(r_intTemp>=R_intAdMaxTemp2)	R_intAdMaxTemp2 = r_intTemp;
+		if(r_intTemp<=R_intAdMinTemp2)	R_intAdMinTemp2 = r_intTemp;
+		R_intAdcValue2 += r_intTemp;
+		R_AdSampCnt2++;
+		if(R_AdSampCnt2>=4)
+		{
+			R_AdSampCnt2 = 0;
+			R_intAdcValue2 -= R_intAdMaxTemp2;
+			R_intAdcValue2 -= R_intAdMinTemp2;
+			R_intAdcValue2 >>= 1;
+			if(R_intAdcValue2<=C_ADC_BAT_LOW)	//600mS
+			{
+				R_BatNormalCnt = 0;
+				R_BatLowCnt++;
+				if(R_BatLowCnt>=10)
+				{
+					R_BatLowCnt = 0;
+					gubv_BalLowStatus = 1;
+				}
+			}
+			else if(R_intAdcValue2>=C_ADC_BAT_NORMAL)	//600mS
+			{
+				R_BatLowCnt = 0;
+				R_BatNormalCnt++;
+				if(R_BatNormalCnt>=10)
+				{
+					R_BatNormalCnt = 0;
+					gubv_BalLowStatus = 0;
+				}
+			}
+			R_intAdcValue2 = 0;
+			R_intAdMaxTemp2 = 0x0000;
+			R_intAdMinTemp2 = 0xffff;
+		}
+}
+
+

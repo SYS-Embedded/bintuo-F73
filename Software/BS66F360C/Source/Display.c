@@ -1,5 +1,6 @@
 
 #include	"Display.h"
+#include    "drv_tm1652.h"
 
 #define		C_LED_NUM3_ADD				0
 #define		C_LED_NUM2_ADD				1
@@ -50,8 +51,9 @@ void Dis_SetDisBufferAll(unsigned char gubv_setData)
 void Display_Refresh_To_TM1652(void)
 {
     //number
-    drv_tm1652_setdigit(0, gu8v_DisplayBuf[C_LED_NUM2_ADD]); // Grid 1
-    drv_tm1652_setdigit(1, gu8v_DisplayBuf[C_LED_NUM2_ADD]); // Grid 2
+    drv_tm1652_setdigit(0, gu8v_DisplayBuf[C_LED_NUM1_ADD]); // Grid 1
+    drv_tm1652_setdigit(1, gu8v_DisplayBuf[C_LED_NUM1_ADD]); // Grid 2
+
 
     //led 
     drv_tm1652_setdigit(2, gu8v_DisplayBuf[2]); // Grid 3
@@ -130,8 +132,14 @@ void Display_Task (void)
 					{
 						if(!gubv_500mS_Flash)
 						{
-							disNum = gu8v_PressureMode-3;
-							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[disNum];
+						    if(gu8v_PressureMode > 4)
+                                gu8v_PressureMode = 4;
+							disNum = gu8v_PressureMode+1;
+							//r_Num2 =  disNum/10;
+							r_Num1 =  disNum%10;
+							gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[r_Num1];
+							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[r_Num1];
+							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[r_Num1];
 						}
 					}
 					else
@@ -194,9 +202,6 @@ void Display_Task (void)
 	length = 7;
 	pBuffer = gu8v_DisplayBuf;
 
-    
-    Display_Refresh_To_TM1652();
-    
     #ifdef DEV_S10B
 	InitIoPort();
 	SendCommand(C_ComDisMod7Mul10);    

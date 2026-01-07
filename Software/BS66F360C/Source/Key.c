@@ -30,7 +30,7 @@ void Key_Task (void)
 	if(!P_KEY_POWER)	gu8v_KeyBuf3=C_KEYVALUE_POWER;
 	if(gu8v_KeyBuf1||gu8v_KeyBuf2||gu8v_KeyBuf3)
 	{
-		P_TEST =~P_TEST;
+		
 		gu8v_KeyOffDebounce = 0;
 		gu8v_KeyDebounce++;
 		if(gu8v_KeyDebounce>=5)

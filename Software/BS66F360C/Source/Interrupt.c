@@ -12,6 +12,7 @@ void MF2_ISR(void)
 	if(_ptmaf)
 	{
 		_ptmaf = 0;
+        P_TEST =~P_TEST;
 		gubv_ZeroStatus = P_ZERO;
 		if(gubv_ZeroStatus!=gubv_ZeroStatusCopy)
 		{

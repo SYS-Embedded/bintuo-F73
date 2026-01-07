@@ -64,10 +64,10 @@ static uart_tx_buffer_t uart_tx_buffers;
 #define	UART_RX_ENABLE()		{_rxen = 1;}				//RX function enable
 #define	UART_RX_DISABLE()		{_rxen = 0;}				//RX function disable
 
-#define	UART_ISR_ENABLE()		{_uarte = 1;}				//UART interrupt enable
-#define	UART_ISR_DISABLE()		{_uarte = 0;}				//UART interrupt disable
-#define	UART_CLEAR_ISR_FLAG()	{_uartf = 0;}				//clear UART interrupt flag
-#define	UART_SET_ISR_FLAG()		{_uartf = 1;}				//set UART interrupt flag
+#define	UART_ISR_ENABLE()		{_ure = 1;}				//UART interrupt enable
+#define	UART_ISR_DISABLE()		{_ure = 0;}				//UART interrupt disable
+#define	UART_CLEAR_ISR_FLAG()	{_urf = 0;}				//clear UART interrupt flag
+#define	UART_SET_ISR_FLAG()		{_urf = 1;}				//set UART interrupt flag
 
 #define UART_RIE_ENABLE()		{_rie = 1;}                 //UART receiver interrupt enable
 #define UART_RIE_DISABLE()		{_rie = 0;}                 //UART receiver interrupt disable
@@ -93,15 +93,13 @@ void uart_init(void)
     _wdtc = 0b10101111; 
 
     // Configure PD1 as RX0, PD2 as TX0 (according to PDS0 register)
-    _pds02 = 1;
-    _pds03 = 0; //PD1 RX  black pin, seventh pin
-    _pds04 = 1;
-    _pds05 = 0; //PD2 TX  red pin, eighth pin
+    _pfs07 = 0;
+    _pfs06 = 1; //PD2 TX  red pin, eighth pin
 
     // Configure UART
     // UCR1: 8 data bits, no parity, 1 stop bit
     _ucr1 = (0 << UARTEN) |   // First disable UART
-             (0 << BNO)     |   // 8 data bits
+             (1 << BNO)     |   // 9 data bits
              (1 << PREN)    |   // No parity
              (1 << PRT)     |   // (even parity, but no parity when disabled)
              (0 << STOPS)   |   // 1 stop bit
@@ -428,5 +426,6 @@ void UART_ISR(void)
 
     // Clear interrupt flag (UARTF in INTC2, automatically cleared by hardware)
     // Note: RXIF/TXIF flags in USR need to be cleared by read/write operations, already handled above
-    _uartf = 0; // Clear UART interrupt request flag (in INTC2)
+    //_uartf = 0; // Clear UART interrupt request flag (in INTC2)
+    UART_CLEAR_ISR_FLAG();
 }

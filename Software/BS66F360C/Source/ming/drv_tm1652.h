@@ -10,8 +10,6 @@
 #ifndef _DRV_TM1652_H_
 #define _DRV_TM1652_H_
 
-#include "MCU_Hardware.h" // Include your MCU specific register definitions
-
 // ================= Configurations =================
 
 // Max supported digits (TM1652 supports up to 6 Grids)

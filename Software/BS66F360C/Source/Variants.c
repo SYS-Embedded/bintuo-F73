@@ -26,7 +26,7 @@ volatile		unsigned char  	gu8v_AbPwmOutPinDelay;
 volatile		unsigned char  	gu8v_FunPwmOutPinDuty;
 volatile		unsigned char  	gu8v_FunPwmOutPinDelay;
 
-volatile		unsigned char  	gu8v_PressureMode;
+volatile		unsigned char  	gu8v_PressureMode;//0~4
 //volatile		unsigned char  	gu8v_PressureModeCopy=0;
 volatile		unsigned char  	gu8v_JiaoTiMode;
 

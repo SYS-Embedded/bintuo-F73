@@ -148,7 +148,7 @@ typedef union {
 /************************ IO ************************************/
 #define	        	P_AB_MOTO     					_pe4
 #define	        	P_FUN_MOTO     					_pe5
-#define	        	P_DC_MOTO     					_pf3
+#define	        	P_DC_MOTO     					_pa5
 #define				C_MOTO_ON						1
 #define				C_MOTO_OFF						0
 
@@ -164,7 +164,7 @@ typedef union {
 #define	        	P_DCF_QiBei    					_pe6  
 #define	        	P_DCF_RightFanShen   			_pf0
 #define	        	P_DCF_LeftFanShen    			_pe7 
-#define	        	P_DCF_TaiTui    				_pe3
+#define	        	P_DCF_TaiTui    				_pe2
 
 #define			 	C_DCF_OFF					 	 0
 #define				C_DCF_ON					  	 1
@@ -287,15 +287,7 @@ typedef union {
 /****************************** AIP650 *****************************/
 
 /***************** AIP1628 *****************************/
-#define	        	P_STB        					_pa1
-#define	        	P_CLK     						_pa5	
-#define	        	P_DIO    						_pa6
-#define				C_ComDisMod7Mul10 				0x03	//设置显示模式，7*10	
-#define				C_ComWRInc 						0x40	//设置数据命令，地址自动加1	
-#define				C_ComAddress0					0xC0	//设置显示地址，从00H开始	
-#define				C_ComDisplayOn 					0x8F  //设置显示命令，最后三位111：最亮，000最暗
 
-#define				C_ComDisplayOff 				0x87  //设置显示命令，最后三位111：最亮，000最暗
 //#define				C_ComDisplayHalfOn 				0x89 
 //B7 B6 B5 B4 B3 B2 B1 B0 功能 说明
 //1 0 

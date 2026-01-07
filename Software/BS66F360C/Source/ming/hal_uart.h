@@ -11,5 +11,6 @@ void uart_putint(int num);
 unsigned char uart_getchar(unsigned char *dat); // Non-blocking, returns 1 if data available, 0 if no data
 void hal_uart_sendisr(unsigned char byte); 
 void Log_PrintHex8(const char val);
+DEFINE_ISR(UART_ISR, 0x10);
 
 #endif
