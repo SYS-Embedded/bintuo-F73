@@ -1,5 +1,6 @@
 //#include <BS86D12C.H>
 
+#include    "drv_iouart_tx.h"
 #include	"Key.h"
 
 void FactoryMode_Task(void)
@@ -25,6 +26,7 @@ void FactoryMode_Task(void)
 ////===============================================================
 ////void Key_Task (void)
 ////===============================================================
+unsigned char test = 0;
 void Key_Task (void)
 {	
 	if(!P_KEY_POWER)	gu8v_KeyBuf3=C_KEYVALUE_POWER;
@@ -36,64 +38,68 @@ void Key_Task (void)
 		if(gu8v_KeyDebounce>=5)
 		{
 			gu8v_KeyDebounce = 0;
+			
+
 			if(!gubv_KeyPressed)
 			{
 				gubv_KeyPressed = 1;
 				gu8v_KeyLongDelay = 15;			//100mS*30=3000mS,3S
 				gubv_KeyLongPressed=0;
-				
-				if(gu8v_KeyBuf1&C_KEYVALUE_20M)
-				{
-					gubv_KeyShort20M = 1;
-				}
-				else if(gu8v_KeyBuf1&C_KEYVALUE_15M)
+
+				//if(gu8v_KeyBuf1&C_KEYVALUE_20M)
+				//{
+				//	gubv_KeyShort20M = 1;
+				//}
+				if(gu8v_KeyBuf1&C_KEYVALUE_15M)
 				{
 					gubv_KeyShort15M = 1;
+                    test = 1;
+                    
 				}
 				else if(gu8v_KeyBuf1&C_KEYVALUE_10M)
 				{
 					gubv_KeyShort10M = 1;
 				}
-				else if(gu8v_KeyBuf1&C_KEYVALUE_QiBei)
+				else if(gu8v_KeyBuf2&C_KEYVALUE_QiBei)
 				{
 					gubv_KeyShortQiBei = 1;
 				}
-				else if(gu8v_KeyBuf1&C_KEYVALUE_TAITUI)
+				else if(gu8v_KeyBuf2&C_KEYVALUE_TAITUI)
 				{
 					gubv_KeyShortTaiTui = 1;
 				}
-				else if(gu8v_KeyBuf1&C_KEYVALUE_LEFT)
+				else if(gu8v_KeyBuf3&C_KEYVALUE_LEFT)
 				{
 					gubv_KeyShortLeft = 1;
 				}
-				else if(gu8v_KeyBuf2&C_KEYVALUE_RIGHT)
+				else if(gu8v_KeyBuf3&C_KEYVALUE_RIGHT)
 				{
 					gubv_KeyShortRight = 1;
 				}
-				else if(gu8v_KeyBuf2&C_KEYVALUE_AL)
+				else if(gu8v_KeyBuf1&C_KEYVALUE_AL)
 				{
 					gubv_KeyShortAL = 1;
 				}
-				else if(gu8v_KeyBuf2&C_KEYVALUE_SLEEP)
+				else if(gu8v_KeyBuf1&C_KEYVALUE_SLEEP)
 				{
 					gubv_KeyShortSleep = 1;
 				}
-				else if(gu8v_KeyBuf2&C_KEYVALUE_AUTO_RL)
+				else if(gu8v_KeyBuf3&C_KEYVALUE_AUTO_RL)
 				{
 					gubv_KeyShortAutoRL = 1;
 				}
-				else if(gu8v_KeyBuf3&C_KEYVALUE_NORMAL_PRE)
-				{
-					gubv_KeyShortNorPre = 1;
-				}
-				else if(gu8v_KeyBuf3&C_KEYVALUE_LOW_PRE)
-				{
-					gubv_KeyShortLowPre = 1;
-				}
-				else if(gu8v_KeyBuf3&C_KEYVALUE_ALARM)
-				{
-					gubv_KeyShortAlermOff  = 1;
-				}
+				//else if(gu8v_KeyBuf3&C_KEYVALUE_NORMAL_PRE)
+				//{
+				//	gubv_KeyShortNorPre = 1;
+				//}
+				//else if(gu8v_KeyBuf3&C_KEYVALUE_LOW_PRE)
+				//{
+				//	gubv_KeyShortLowPre = 1;
+				//}
+				//else if(gu8v_KeyBuf3&C_KEYVALUE_ALARM)
+				//{
+				//	gubv_KeyShortAlermOff  = 1;
+				//}
 				else 
 				{
 					if(gu8v_KeyBuf2&C_KEYVALUE_VOLICE_OFF)
@@ -122,6 +128,7 @@ void Key_Task (void)
 					else if(gu8v_KeyBuf3&C_KEYVALUE_POWER)
 					{
 						gubv_KeyShortPower  = 1;
+                        IOUART_SendString("powerkey\n");
 					}
 				}
 			}
@@ -131,7 +138,7 @@ void Key_Task (void)
 				{
 					gu8v_KeyLongDelay = 15;			//100mS*30=3000mS,3S
 					gubv_KeyLongPressed = 1;
-					if(gu8v_KeyBuf3&C_KEYVALUE_LOCK)
+					if(gu8v_KeyBuf2&C_KEYVALUE_LOCK)
 					{
 						gubv_KeyShortLock = 1;
 					}

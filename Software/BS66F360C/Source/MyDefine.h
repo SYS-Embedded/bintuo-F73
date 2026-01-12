@@ -51,6 +51,8 @@ typedef union {
 
 #define				P_FACTORY_TEST				_pa0
 #define				P_TEST						_pa2
+#define             HAL_GPIO_TX_DIR(val)        (_pac2=val)
+#define             HAL_GPIO_TX_SET(val)        (_pa2=val)
 
 
 #define 			C_POWER_ON_MODE		 		1
@@ -123,27 +125,27 @@ typedef union {
 //#define				C_KEYVALUE_JIAOTI				0x0200
 //#define				C_KEYVALUE_POWER				0x0400
 
-#define				C_KEYVALUE_AL					0x01
-#define				C_KEYVALUE_SLEEP				0x02
-#define				C_KEYVALUE_VOLICE_OFF			0x20
+#define				C_KEYVALUE_AL					0x08 //buf1
+#define				C_KEYVALUE_SLEEP				0x40 //buf1
+#define				C_KEYVALUE_VOLICE_OFF			0x02 //buf2
 
-#define				C_KEYVALUE_AUTO_RL				0x40
-#define				C_KEYVALUE_RIGHT				0x08
-#define				C_KEYVALUE_LEFT					0x80
-#define				C_KEYVALUE_TAITUI				0x40
-#define				C_KEYVALUE_QiBei				0x08
+#define				C_KEYVALUE_AUTO_RL				0x04 //buf3
+#define				C_KEYVALUE_RIGHT				0x02 //buf3
+#define				C_KEYVALUE_LEFT					0x01 //buf3
+#define				C_KEYVALUE_TAITUI				0x80 //buf2
+#define				C_KEYVALUE_QiBei				0x40 //buf2
 
-#define				C_KEYVALUE_10M					0x04
-#define				C_KEYVALUE_15M					0x02
+#define				C_KEYVALUE_10M					0x04 //buf1
+#define				C_KEYVALUE_15M					0x02 //buf1
 #define				C_KEYVALUE_20M					0x01
 #define				C_KEYVALUE_NORMAL_PRE			0x01
 #define				C_KEYVALUE_LOW_PRE				0x02
 #define				C_KEYVALUE_ALARM				0x04
 
-#define				C_KEYVALUE_LOCK					0x08
-#define				C_KEYVALUE_PRE_DEC				0x20
-#define				C_KEYVALUE_PRE_ADD				0x10 
-#define				C_KEYVALUE_POWER				0x80
+#define				C_KEYVALUE_LOCK					0x01 //buf2
+#define				C_KEYVALUE_PRE_DEC				0x20 //buf3
+#define				C_KEYVALUE_PRE_ADD				0x10 //buf3
+#define				C_KEYVALUE_POWER				0x80 //buf3
 /************************ KEY ************************************/
 /************************ IO ************************************/
 #define	        	P_AB_MOTO     					_pe4
@@ -164,7 +166,7 @@ typedef union {
 #define	        	P_DCF_QiBei    					_pe6  
 #define	        	P_DCF_RightFanShen   			_pf0
 #define	        	P_DCF_LeftFanShen    			_pe7 
-#define	        	P_DCF_TaiTui    				_pe2
+#define	        	P_DCF_TaiTui    				_pe3
 
 #define			 	C_DCF_OFF					 	 0
 #define				C_DCF_ON					  	 1

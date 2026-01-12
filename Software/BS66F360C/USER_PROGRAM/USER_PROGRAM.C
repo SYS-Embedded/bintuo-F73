@@ -4,6 +4,8 @@
 
 #include	"..\Source\MyDefine.h"
 #include	"..\Source\Variants.h"
+#include "drv_iouart_tx.h"
+#include    "drv_tm1652.h"
 
 extern	void  	Sys_Init(void);
 extern	void 	User_Init(void);
@@ -39,6 +41,7 @@ void USER_PROGRAM_INITIAL()
 //==============================================
 void USER_PROGRAM()
 {
+	#if 1
 	if(gubv_5mS)
 	{
 		gubv_5mS = 0;
@@ -51,6 +54,7 @@ void USER_PROGRAM()
 		//Beep_Task();
 		ADC_Task();
         drv_tm1652_task();
+        
 	}
 	if(gubv_10mS)
 	{
@@ -69,6 +73,9 @@ void USER_PROGRAM()
 		gubv_100mS = 0;
 		Time_Base();
 	}
+	#endif
+    iouart_startscan();
+    GCC_CLRWDT();
 }
 
 

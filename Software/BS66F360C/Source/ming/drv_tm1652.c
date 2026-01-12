@@ -132,9 +132,9 @@ void drv_tm1652_init(void)
     }
     
     // 3. Default Settings
-    s_BrightnessLevel = TM1652_BRIGHT_4_16; 
+    s_BrightnessLevel = TM1652_BRIGHT_10_16; 
     s_CurrentState = STATE_IDLE;
-    
+
     // 4. Force refresh on startup
     s_UpdateFlags = FLAG_UPDATE_DATA | FLAG_UPDATE_CTRL;
 }
@@ -165,9 +165,17 @@ void drv_tm1652_setbrightness(unsigned char level)
 #if 1
 void drv_tm1652_task(void)
 {
-    unsigned char param = 0x10;
+    unsigned char param = 0x0E;
     
-    if(s_UpdateFlags & FLAG_UPDATE_DATA)
+    if(s_UpdateFlags & FLAG_UPDATE_CTRL)
+    {
+        // Start sending control command
+        hal_uart_sendisr(0x18);
+        param |= (s_BrightnessLevel << 4); 
+        hal_uart_sendisr(param);
+        s_UpdateFlags &= ~FLAG_UPDATE_CTRL;
+    }
+    else if(s_UpdateFlags & FLAG_UPDATE_DATA)
     {
         // Start sending display data
         hal_uart_sendisr(0x08);
@@ -179,15 +187,7 @@ void drv_tm1652_task(void)
         hal_uart_sendisr(s_DispBuf[5]);
         s_UpdateFlags &= ~FLAG_UPDATE_DATA;
     }
-    else if(s_UpdateFlags & FLAG_UPDATE_CTRL)
-    {
-        // Start sending control command
-        hal_uart_sendisr(0x18);
-        param |= (s_BrightnessLevel << 4); 
-        hal_uart_sendisr(param);
-        s_UpdateFlags &= ~FLAG_UPDATE_CTRL;
-    }
-
+    
 }
 #else
 void drv_tm1652_task(void)

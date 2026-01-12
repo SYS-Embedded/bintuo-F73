@@ -1,5 +1,6 @@
 //HT66F3195
 #include "hal_uart.h"
+#include "drv_iouart_tx.h"
 #include "interrupt.h"
 
 #define DEBUG_LOG_ENABLE 0
@@ -10,15 +11,15 @@ static unsigned char uart_rx_buffer[UART_RX_BUF_SIZE];
 static volatile unsigned char uart_rx_head = 0;
 static volatile unsigned char uart_rx_tail = 0;
 
-#define TX_BUFFER_SIZE 20
+#define TX_BUFFER_SIZE 21
 
 // buffer for UART TX channel
 typedef struct 
 {
     unsigned char buffer[TX_BUFFER_SIZE];
-    unsigned char head;
-    unsigned char tail;
-    unsigned char count;
+    volatile unsigned char head;
+    volatile unsigned char tail;
+    volatile unsigned char count;
 } uart_tx_buffer_t;
 
 static uart_tx_buffer_t uart_tx_buffers;
@@ -87,14 +88,16 @@ static uart_tx_buffer_t uart_tx_buffers;
 #define UART_TXBRK_ENABLE()		{_txbrk = 1;}                //UART transmit break character function enable
 #define UART_TXBRK_DISABLE()	{_txbrk = 0;}                //UART transmit break character function disable
 
+
 void uart_init(void) 
 {
     unsigned char dummy;
-    _wdtc = 0b10101111; 
+    //_wdtc = 0b10101111; 
 
     // Configure PD1 as RX0, PD2 as TX0 (according to PDS0 register)
+    _pfc3 = 0;
     _pfs07 = 0;
-    _pfs06 = 1; //PD2 TX  red pin, eighth pin
+    _pfs06 = 1; //Pf3 TX  red pin, eighth pin
 
     // Configure UART
     // UCR1: 8 data bits, no parity, 1 stop bit
@@ -111,7 +114,7 @@ void uart_init(void)
              (1 << BRGH) |     // High speed baud rate (fH/16)
              (0 << ADDEN)|     // Disable address detection
              (0 << WAKE) |     // Disable wake-up
-             (1 << RIE)  |     // Enable receive interrupt
+             (0 << RIE)  |     // Enable receive interrupt
              (0 << TIIE) |     // Disable transmit idle interrupt
              (0 << TEIE);      // Disable transmit register empty interrupt
 
@@ -174,6 +177,7 @@ void uart_init(void)
 	UART_ISR_ENABLE();
 	UART_RIE_DISABLE();
     UART_TIIE_DISABLE();
+    UART_TEIE_DISABLE();
 	UART_ENABLE();
 	UART_TX_ENABLE();
 	//UART_RX_ENABLE();
@@ -319,17 +323,24 @@ void hal_uart_sendisr(unsigned char byte)
 	//unsigned char old_interrupt_state;
     unsigned char status;
     uart_tx_buffer_t *buf = &uart_tx_buffers;
+    unsigned int timeout = 0;
     
     // wait for buffer space
     while (buf->count >= TX_BUFFER_SIZE) {
         // timeout handling
+        if(timeout++ > 10000)
+        {
+            IOUART_SendString("Err-uarttxbuffull\n");
+            return;
+        }
+            
     }
     
 	// Disable interrupt to protect critical section
     //old_interrupt_state = HAL_INT_GET();
     //HAL_INT_SET(0);
     
-    
+    _emi  =	0;
     // Put byte into buffer
     buf->buffer[buf->head] = byte;
     buf->head++;
@@ -337,7 +348,6 @@ void hal_uart_sendisr(unsigned char byte)
 	{
 		buf->head = 0;
 	}
-    _emi  =	0;
     buf->count++;
     _emi  =	1;
      
@@ -345,6 +355,9 @@ void hal_uart_sendisr(unsigned char byte)
     if (buf->count == 1) 
 	{
         // Write directly to UART transmit register, trigger transmission
+        _tx8 = 0;
+
+
 		//while(TRMT)
 		{
 			//TXREG = 
@@ -354,8 +367,8 @@ void hal_uart_sendisr(unsigned char byte)
 		}
         // Enable transmission complete interrupt
         //ENABLE_UART_TX_INT();
-        UART_TEIE_ENABLE();
     }
+    UART_TEIE_ENABLE();
     
     // Restore interrupt
 	//HAL_INT_SET(old_interrupt_state);
@@ -373,6 +386,8 @@ void UART_ISR(void)
 
     // Check if it's receive interrupt (RXIF)
     status = _usr;
+
+    #if 0
     if (status & (1 << RXIF)) 
     {
         // Read status register (must read USR first)
@@ -388,11 +403,14 @@ void UART_ISR(void)
         }
         // If buffer is full, new data will be discarded (optional: add overflow counter)
     }
+    #endif
 
-    if (status & (1 << TXIF))  //UART transmission complete interrupt
+    if ((status & (1 << TXIF)) && (buf->count > 0))  //UART transmission complete interrupt
 	{
+	    
 		// Check if there is still data to send
-		if (buf->count > 0) {
+		//if (buf->count > 0) 
+        {
 			// Update tail pointer
 			buf->tail++;
 			if(buf->tail >= TX_BUFFER_SIZE)
@@ -413,15 +431,15 @@ void UART_ISR(void)
 			{
 				// No more data, disable send interrupt
 				//DISABLE_UART_TX_INT();
-                UART_TEIE_DISABLE();
+                //UART_TEIE_DISABLE();
 			}
 		}
-        else
-		{
+        //else
+		//{
 			// No more data, disable send interrupt
 			//DISABLE_UART_TX_INT();
-            UART_TEIE_DISABLE();
-		}
+         //   UART_TEIE_DISABLE();
+		//}
 	}
 
     // Clear interrupt flag (UARTF in INTC2, automatically cleared by hardware)

@@ -1,4 +1,4 @@
-
+#include "drv_iouart_tx.h"
 #include "Interrupt.h"
 
 //===============================================================
@@ -12,7 +12,8 @@ void MF2_ISR(void)
 	if(_ptmaf)
 	{
 		_ptmaf = 0;
-        P_TEST =~P_TEST;
+        
+        IOUART_TIMER_IRQ_HANDLER();
 		gubv_ZeroStatus = P_ZERO;
 		if(gubv_ZeroStatus!=gubv_ZeroStatusCopy)
 		{

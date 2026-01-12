@@ -1,6 +1,7 @@
 
 #include	"Display.h"
 #include    "drv_tm1652.h"
+#include    "drv_iouart_tx.h"
 
 #define		C_LED_NUM3_ADD				0
 #define		C_LED_NUM2_ADD				1
@@ -52,16 +53,15 @@ void Display_Refresh_To_TM1652(void)
 {
     //number
     drv_tm1652_setdigit(0, gu8v_DisplayBuf[C_LED_NUM1_ADD]); // Grid 1
-    drv_tm1652_setdigit(1, gu8v_DisplayBuf[C_LED_NUM1_ADD]); // Grid 2
-
-
+    
     //led 
-    drv_tm1652_setdigit(2, gu8v_DisplayBuf[2]); // Grid 3
-    drv_tm1652_setdigit(3, gu8v_DisplayBuf[3]); // Grid 4
-    drv_tm1652_setdigit(4, gu8v_DisplayBuf[4]); // Grid 5
+    drv_tm1652_setdigit(1, gu8v_DisplayBuf[C_LED_KEY_ADD1]); // Grid 2
+    //drv_tm1652_setdigit(2, gu8v_DisplayBuf[C_LED_KEY_ADD1]); // Grid 3
+    drv_tm1652_setdigit(3, gu8v_DisplayBuf[C_LED_KEY_ADD2]); // Grid 4
+    drv_tm1652_setdigit(4, gu8v_DisplayBuf[C_LED_KEY_ADD3]); // Grid 5
 }
 
-
+extern unsigned char test;
 void Display_Task (void)
 {	
 	//unsigned char u8_DisTemp,u8_DisTemp1,u8_DisTemp2;
@@ -75,7 +75,7 @@ void Display_Task (void)
 			Dis_SetDisBufferAll(0xFF);
 		break;
 		case C_WORK_OFF_MODE:
-			gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_E|C_SEG_F;//led22 led23
+			gu8v_DisplayBuf[C_LED_KEY_ADD1] |= 0x10|0x20;//led22 led23
 		break;
 		case  C_WORK_ON_MODE :
 				if(gubv_FactoryTestMode)
@@ -128,6 +128,7 @@ void Display_Task (void)
 				}
 				else
 				{
+				    static unsigned char index = 0;
 					if(gu8v_PreKeyDownDisTime)
 					{
 						if(!gubv_500mS_Flash)
@@ -136,14 +137,15 @@ void Display_Task (void)
                                 gu8v_PressureMode = 4;
 							disNum = gu8v_PressureMode+1;
 							//r_Num2 =  disNum/10;
-							r_Num1 =  disNum%10;
-							gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[r_Num1];
-							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[r_Num1];
-							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[r_Num1];
+							//r_Num1 =  disNum%10;
+							gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[disNum];
+							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[disNum];
+							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[disNum];
 						}
 					}
 					else
-					{
+					{   
+						#if 0
 						if((!gubv_FunPressureFirstFull)&&(WorkModeFlag.byte))
 						{
 							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[4]|C_SEG_DP;	
@@ -159,42 +161,90 @@ void Display_Task (void)
 							if(r_Num3)	gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[r_Num3];
 							gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[r_Num2]|C_SEG_DP;	
 							gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[r_Num1];
-						}	
+						}
+                        #else
+                        if(gu8v_PressureMode > 4)
+                            gu8v_PressureMode = 4;
+                        disNum = gu8v_PressureMode+1;
+
+                        gu8v_DisplayBuf[C_LED_NUM3_ADD] =  R_NumTable[disNum];
+                        gu8v_DisplayBuf[C_LED_NUM2_ADD] =  R_NumTable[disNum];
+                        gu8v_DisplayBuf[C_LED_NUM1_ADD] =  R_NumTable[disNum];
+                        #endif
 					}
-					if(gubv_AutoMode)				gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_F;
-					if(gubv_QiBeiMode)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_B;
-					if(gubv_DcfLeftFanShenMode)		gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_DP;
-					if(gubv_DcfRightFanShenMode)	gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_G;
-					if(gubv_TaituiMode)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_A;
+
 					
-					if(gubv_LockStatus)				gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_A;
-					if(gubv_VoliceOn)				gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_D;
+                    #if 0
+                    gu8v_DisplayBuf[3] = 0x00;
+                    gu8v_DisplayBuf[4] = 0x00;
+                    gu8v_DisplayBuf[5] = 0x00;
+                    
+         
+                    if(index < 8)
+                        gu8v_DisplayBuf[3] |= 0x01<<index;
+                    else if(index < 16)
+                        gu8v_DisplayBuf[4] |= 0x01<<(index-8);
+                    else if(index < 24)
+                        gu8v_DisplayBuf[5] |= 0x01<<(index-16);
+
+                    if(test)
+                    {
+                        test = 0;
+
+                        index++;
+                        if(index >= 24)
+                        {
+                            index = 0;
+                        }
+                        IOUART_SendByte(0xFF);
+                        IOUART_SendByte(index);
+                    }
+
+
+                    #else
+					if(gubv_AutoMode)				gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x10;
+					if(gubv_QiBeiMode)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= 0x20;
+					if(gubv_DcfLeftFanShenMode)		gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x20;
+					if(gubv_DcfRightFanShenMode)	gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x40;
+					if(gubv_TaituiMode)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= 0x10;
 					
+					if(gubv_LockStatus)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= 0x01;
+					if(gubv_VoliceOn)				gu8v_DisplayBuf[C_LED_KEY_ADD2] |= 0x02;
+
+                    #if 0
 					if(!gubv_AbPressureFull)		gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_G;
 					
 					gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_F;//normal led
+                    
+					
 					if(gubv_AbSensorErrAlarmMode||gubv_FunSensorErrAlarmMode)	gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_DP;//alerm blue led ,alarm red led
 					else														gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_DP;//alerm blue led ,alarm red led
-					gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_B|C_SEG_C;//led19 led20
-					gu8v_DisplayBuf[C_LED_KEY_ADD3] |= C_SEG_E|C_SEG_F;//led22 led23	
-					if(gubv_StaticMode)				gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_B;
+					#endif
+					
+					gu8v_DisplayBuf[C_LED_KEY_ADD1] |= 0x02|0x04;//led19 led20
+					gu8v_DisplayBuf[C_LED_KEY_ADD1] |= 0x10|0x20;//led22 led23	
+
+					if(gubv_StaticMode)				
+                        gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x01;
 					///if((!WorkModeFlag.byte)&&(!gubv_StaticMode))
 					else
 					{
-						gu8v_DisplayBuf[C_LED_KEY_ADD1] |= C_SEG_A;
+					    gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x02;
 						switch(gu8v_JiaoTiMode)
 						{
 							case 2:
-								gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_E;
+								//gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_E;
 							break;
 							case 1:
-								gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_D;
+								gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x08;
 							break;
 							default:
-								gu8v_DisplayBuf[C_LED_KEY_ADD2] |= C_SEG_C;
+								gu8v_DisplayBuf[C_LED_KEY_ADD3] |= 0x04;
 							break;
 						}
 					}
+                    #endif
+
 				}
 		break;
 	}
